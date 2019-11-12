@@ -87,6 +87,8 @@ public class Matrix<T extends Number> {
     }
     public Matrix<T> checkVector(Matrix<T> matrixCopy, Matrix<T> resultVector,Matrix<T> checkingVector,Matrix<T> vector){
         int n = vector.rows;
+         //For test in WOlfram
+        // resultVector.printMatrix();
         if (type.equals(Float.class)) {
             for (int i = 0; i < n; i++) {
                 float sum = 0;
@@ -109,15 +111,36 @@ public class Matrix<T extends Number> {
         }
         return checkingVector;
     }
-    public void switchMatrix(Matrix<T> matrix,Matrix<T> vector,int max, int i){
+    public void switchMatrixPart(Matrix<T> matrix,Matrix<T> vector,int max, int i){
         for (int j = 0; j < matrix.columns; j++) {
             T temp = matrix.matrix[i][j];
             matrix.matrix[i][j] = matrix.matrix[max][j];
             matrix.matrix[max][j] = temp;
         }
-        T temp = vector.matrix[i][0];
-        vector.matrix[i][0] = vector.matrix[max][0];
-        vector.matrix[max][0] = temp;
+        for (int k=0; k< vector.columns; k++) {
+            T temp = vector.matrix[i][k];
+            vector.matrix[i][k] = vector.matrix[max][k];
+            vector.matrix[max][k] = temp;
+        }
+    }
+    public void switchMatrixFull(Matrix<T> matrix, Matrix<T> vector, int maxRow, int maxColumn, int i){
+        for (int j = 0; j < matrix.rows; j++) {
+            T temp = matrix.matrix[i][j];
+            matrix.matrix[i][j] = matrix.matrix[maxRow][j];
+            matrix.matrix[maxRow][j] = temp;
+        }
+
+        for (int j = 0; j < vector.columns; j++) {
+            T temp = vector.matrix[i][j];
+            vector.matrix[i][j] = vector.matrix[maxRow][j];
+            vector.matrix[maxRow][j] = temp;
+        }
+
+        for (int j = 0; j < matrix.rows; j++) {
+            T temp = matrix.matrix[j][i];
+            matrix.matrix[j][i] = matrix.matrix[j][maxColumn];
+            matrix.matrix[j][maxColumn] = temp;
+        }
     }
     public Matrix<T> methodWithoutChoice(Matrix<T> matrix, Matrix<T> vector, Matrix<T> MatrixCopy) {
         int n = vector.rows;
@@ -145,7 +168,7 @@ public class Matrix<T extends Number> {
                         max = j;
                     }
                 }
-                switchMatrix(matrix, vector, max, i);
+                switchMatrixPart(matrix, vector, max, i);
                 elimination(matrix, vector,i);
             }
         }
@@ -158,7 +181,7 @@ public class Matrix<T extends Number> {
                         max = j;
                     }
                 }
-                switchMatrix(matrix, vector, max, i);
+                switchMatrixPart(matrix, vector, max, i);
                 elimination(matrix, vector,i);
             }
         }
@@ -166,7 +189,68 @@ public class Matrix<T extends Number> {
        // resultVector.printMatrix();
         checkingVector = checkVector(MatrixCopy, resultVector, checkingVector, vector);
         return checkingVector; }
+    public Matrix<T> methodWithFullChoice(Matrix <T> matrix, Matrix<T> vector, Matrix<T> MatrixCopy) {
+        int n = vector.rows;
+        Matrix<T> resultVector = new Matrix(n, type);
+        Matrix<T> realResultVector = new Matrix(n,type);
+        Matrix<T> checkingVector = new Matrix(n, type);
+        int[] position;
+        position= new int[n];
 
+        for (int j = 0; j < n; j++) {
+            position[j]=j;
+        }
+        if (type.equals(Float.class)){
+            for (int i = 0; i < n; i++) {
+                int maxRow = i;
+                int maxColumn = i;
+
+                for (int j = i; j < matrix.rows; j++) {
+                    for (int k = i; k < matrix.columns; k++) {
+                        if (Math.abs(matrix.matrix[j][k].floatValue()) > Math.abs(matrix.matrix[maxRow][maxColumn].floatValue())) {
+                            maxRow = j;
+                            maxColumn = k;
+
+                        }
+                    }
+                }
+                int tempInt = position[i];
+                position[i] = position[maxColumn];
+                position[maxColumn] = tempInt;
+                switchMatrixFull(matrix,vector,maxRow,maxColumn,i);
+                elimination(matrix,vector,i);
+            }
+            resultVector = resultVector(matrix,resultVector,vector);
+            for (int j = 0; j < n; j++)
+                realResultVector.matrix[position[j]][0]= (T) (Float) (resultVector.matrix[j][0].floatValue());}
+        else if (type.equals(Double.class)) {
+            for (int i = 0; i < n; i++) {
+                int maxRow = i;
+                int maxColumn = i;
+
+                for (int j = i; j < matrix.rows; j++) {
+                    for (int k = i; k < matrix.columns; k++) {
+                        if (Math.abs(matrix.matrix[j][k].doubleValue()) > Math.abs(matrix.matrix[maxRow][maxColumn].doubleValue())) {
+                            maxRow = j;
+                            maxColumn = k;
+
+                        }
+                    }
+                }
+                int tempInt = position[i];
+                position[i] = position[maxColumn];
+                position[maxColumn] = tempInt;
+                switchMatrixFull(matrix,vector,maxRow,maxColumn,i);
+                elimination(matrix,vector,i);
+            }resultVector = resultVector(matrix,resultVector,vector);
+            for (int j = 0; j < n; j++)
+                realResultVector.matrix[position[j]][0]= (T) (Double) (resultVector.matrix[j][0].doubleValue());}
+
+
+        checkingVector = checkVector(MatrixCopy,realResultVector,checkingVector,vector);
+        //   trueResult.printMatrix();
+        return checkingVector;
+    }
     public void printMatrix() {
         System.out.println("MACIERZ: ");
         for (int j = 0; j < rows; j++) {
