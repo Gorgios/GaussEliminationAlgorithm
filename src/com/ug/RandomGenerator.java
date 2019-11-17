@@ -3,10 +3,10 @@ package com.ug;
 import java.util.Random;
 
 public class RandomGenerator {
-    private int result;
-    private int min= -65536;
-    private int max= 65335;
-    private int divider=65536;
+    private Integer result;
+    private Integer min= -65536;
+    private Integer max= 65335;
+    private Integer divider=65536;
 
     Random rand = new Random();
 
@@ -14,11 +14,11 @@ public class RandomGenerator {
         this.result = rand.nextInt(max - min + 1) + min;
     }
 
-    public int getDivider() {
+    public Integer getDivider() {
         return divider;
     }
 
-    public double getResult() {
+    public Integer getResult() {
         return result;
     }
 
